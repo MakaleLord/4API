@@ -186,3 +186,78 @@ Student with highest grade:
 <td> 98 </td>
 </tr>
 </tbody></table>
+#!/usr/bin/python3
+
+import cgitb
+cgitb.enable()
+
+print("Content-type:text/html")
+print()
+
+import sqlite3
+connection = sqlite3.connect('database/school.db')
+sql = connection.cursor()
+
+from helper import show_data
+
+sql.execute('''
+Create table if not exists grading(
+   Name Text,
+   Marks Integer,
+   Grade Text
+)''')
+
+sql.execute('''Insert into grading values
+               ("Jon", 65, "--"),
+               ("Dave", 23, "--"),
+               ("Thomas", 98, "--"),
+               ("Max", 95, "--"),
+               ("Tom", 58, "--"),
+               ("Becky", 19, "--"),
+               ("Penny", 91, "--"),
+               ("Shreya", 30, "--"),
+               ("Lisa", 60, "--"),
+               ("George", 85, "--"),
+               ("Rihana", 74, "--")
+''')
+
+data = sql.execute("select * from grading")
+show_data(data)
+
+print("Here are Tom's grades:")
+tom_data = sql.execute('''select Name, Marks from grading
+            where Name = "Tom"''')
+show_data(tom_data)
+
+sql.execute('''update grading
+                 set grade = "A"
+                 where Marks >= 90''')
+
+sql.execute('''update grading
+                 set grade = "A+"
+                 where Marks > 97 and Marks <= 100''')
+
+sql.execute('''update grading
+                 set grade = "A-"
+                 where Marks >= 90 and Marks < 94''')
+
+
+
+sql.execute('''update grading
+                 set grade = "Fail"
+                 where Marks < 60 ''')
+
+
+print("Students who are passing:")
+passed_data = sql.execute('''select * from grading
+               where Marks >= 60''')
+show_data(passed_data)
+
+print("Students who are failing:")
+passed_data = sql.execute('''select * from grading
+               where Marks < 60''')
+show_data(passed_data)
+
+print("Student with highest grade:")
+highest_grade = sql.execute('''select Name, max(Marks) from grading''')
+show_data(highest_grade)
